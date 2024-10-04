@@ -1,13 +1,7 @@
-# Sample Hardhat Project
+# ChainDebate
+Web app for allowing users to debate and vote on topics.
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a Hardhat Ignition module that deploys that contract.
-
-Try running some of the following tasks:
-
-```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat ignition deploy ./ignition/modules/Lock.js
-```
+## Development
+Solidity 0.8.27
+Node 20.17.0
+Hardhat 2.22.11
