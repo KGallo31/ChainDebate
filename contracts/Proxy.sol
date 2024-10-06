@@ -8,6 +8,10 @@ contract Proxy is Ownable {
     // Storage slot for the address of the implementation contract. This uses EIP-1967 standard
     bytes32 private constant implementationSlot = bytes32(uint256(keccak256('eip1967.proxy.implementation')) - 1);
 
+    struct ownerSet {
+        address owner;
+    }
+
     // Constructor that sets the initial implementation contract address
     constructor(address _implementation) Ownable(msg.sender) {
         setImplementation(_implementation);
@@ -43,6 +47,10 @@ contract Proxy is Ownable {
         assembly {
             impl := sload(slot)
         }
+    }
+
+    function getOwner() public view returns (address) {
+        return owner();
     }
 
     // Function to receive Ether

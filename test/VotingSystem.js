@@ -4,19 +4,7 @@ const {
   } = require("@nomicfoundation/hardhat-toolbox/network-helpers");
   const { expect } = require("chai");
 
-
-  const getSession = async (transaction, votingSystem) => {
-    const receipt = await transaction.wait();
-    const sessionId = receipt.logs[0].args[0];
-    const session = await votingSystem.getSessionInfo(sessionId);
-    return session;
-  }
-
-  const getSessionId = async (transaction) => {
-    const receipt = await transaction.wait();
-    const sessionId = receipt.logs[0].args[0];
-    return sessionId;
-  }
+  const { getSession, getSessionId } = require("./util");
   
   describe("VotingSystem", function () {
     async function deployVotingSystemFixture() {
@@ -74,7 +62,6 @@ const {
         const sessionId = await getSessionId(tx);
 
         await votingSystem.connect(voter1).vote(sessionId, 0); // Vote for Topic 1
-        
         const topic = await votingSystem.getTopic(sessionId, 0);
         expect(topic.voteCount).to.equal(1);
       });
