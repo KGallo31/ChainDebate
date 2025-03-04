@@ -45,9 +45,10 @@ contract VotingSystem is ReentrancyGuard {
     // Mapping from session ID to the VotingSession struct
     mapping(bytes32 => VotingSession) public votingSessions;
     // Counter to keep track of the total number of voting sessions created
+    mapping(address => Voter) public Voters;
     uint32 public totalSessions;
 
-    event VotingSessionCreated(bytes32 sessionId, string title, uint256 startTime, uint256 endTime, address creator, uint32 totalVotes);
+    address public owner;
 
     // Modifier to check if the user can create a session (once every 24 hours)
     modifier canCreateSession() {
@@ -82,8 +83,8 @@ contract VotingSystem is ReentrancyGuard {
 
         // Add topics to the voting session
         for (uint32 i = 0; i < _topicDescriptions.length; i++) {
-            newSession.topics[i] = Topic({
-                id: i,
+            newSession.votingTopics[i] = Topic({
+                id:  keccak256(abi.encodePacked(msg.sender, block.timestamp, i)),
                 description: _topicDescriptions[i],
                 voteCount: 0
             });
@@ -115,17 +116,28 @@ contract VotingSystem is ReentrancyGuard {
     // Function to vote in a specific session
     function vote(bytes32 _sessionId, uint32 _topicId) public nonReentrant withinVotingPeriod(_sessionId) {
         VotingSession storage session = votingSessions[_sessionId];
-        Voter storage voter = session.voters[msg.sender];
-        
-        require(!voter.hasVoted, "You have already voted in this session");
-        require(!isTopicDefault(session.topics[_topicId]), "Invalid topic ID");  // Add extra check to avoid out-of-bounds errors
+        Voter storage currentVoter = Voters[msg.sender];
+
+        for (uint32 i = 0; i < session.votedUsers.length; i++){
+            if (session.votedUsers[i].userID == msg.sender){
+                require(!session.votedUsers[i].hasVoted, "You have already voted in this session");   
+            }
+        }
+
+        for (uint32 i = 0; i < session.votingTopics.length; i++){
+            require(!isTopicDefault(session.votingTopics[i]), "Invalid topic ID");  // Add extra check to avoid out-of-bounds errors
+        }
+
+
         
         // Update in memory
-        voter.hasVoted = true;
-        voter.vote = _topicId;
+        currentVoter.hasVoted = true;
+        currentVoter.vote = _topicId;
+        currentVoter.userID = msg.sender;
+        currentVoter.votedForTopics.push(bytes32(uint256(_topicId)));
         
         // Cache topic and increment its vote count
-        Topic storage selectedTopic = session.topics[_topicId];
+        Topic storage selectedTopic = session.votingTopics[_topicId];
         selectedTopic.voteCount += 1;
         
         session.totalVotes += 1;
@@ -139,7 +151,7 @@ contract VotingSystem is ReentrancyGuard {
     // Function to get information about a specific topic in a session
     function getTopic(bytes32 _sessionId, uint32 _topicId) public view returns (Topic memory) {
         require(votingSessions[_sessionId].creator != address(0) && keccak256(bytes(votingSessions[_sessionId].title)) != keccak256(bytes("")), "Session does not exist");
-        Topic memory topic = votingSessions[_sessionId].topics[_topicId];  // Fetch the topic in the session
+        Topic memory topic = votingSessions[_sessionId].votingTopics[_topicId];  // Fetch the topic in the session
         return topic;
     }
 
@@ -149,13 +161,14 @@ contract VotingSystem is ReentrancyGuard {
         uint32 maxVotes = 0;
         string memory winningTopic;
 
-        Topic memory topic = session.topics[0];
+        Topic memory topic = session.votingTopics[0];
+        uint32 counter = 0;
         while (!isTopicDefault(topic)) {
-            if (session.topics[topic.id].voteCount > maxVotes) {
-                maxVotes = session.topics[topic.id].voteCount;
-                winningTopic = session.topics[topic.id].description;
+            if (session.votingTopics[counter].voteCount > maxVotes) {
+                maxVotes = session.votingTopics[counter].voteCount;
+                winningTopic = session.votingTopics[counter].description;
             }
-            topic = session.topics[topic.id + 1];
+            topic = session.votingTopics[counter + 1];
         }
 
         return winningTopic; 
