@@ -1,0 +1,169 @@
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 220 33% 98%;
+    --foreground: 220 10% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 220 10% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 220 10% 15%;
+
+    --primary: 220 80% 50%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 220 14% 95%;
+    --secondary-foreground: 220 10% 15%;
+
+    --muted: 220 14% 95%;
+    --muted-foreground: 220 7% 40%;
+
+    --accent: 262 83% 58%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 220 13% 91%;
+    --input: 220 13% 91%;
+    --ring: 222.2 84% 4.9%;
+
+    --radius: 0.9rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  * {
+    @apply border-border;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "ss01" on, "ss02" on, "cv01" on, "cv03" on;
+  }
+  
+  .glass {
+    @apply bg-white/70 backdrop-blur-lg border border-white/20 shadow-sm;
+  }
+  
+  .glass-dark {
+    @apply bg-black/10 backdrop-blur-lg border border-white/10 shadow-md;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted-foreground/20 rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground/30;
+  }
+  
+  /* Custom text selection */
+  ::selection {
+    @apply bg-primary/20 text-primary;
+  }
+  
+  /* Animated gradient for hero section */
+  .animated-gradient {
+    background: linear-gradient(
+      45deg,
+      hsl(var(--primary)) 0%,
+      hsl(var(--accent)) 50%,
+      hsl(var(--primary)) 100%
+    );
+    background-size: 200% 200%;
+    animation: gradient-shift 10s ease infinite;
+  }
+  
+  @keyframes gradient-shift {
+    0% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+    100% {
+      background-position: 0% 50%;
+    }
+  }
+  
+  /* Appear animations for elements */
+  .appear {
+    animation: appear 0.6s ease-out forwards;
+    opacity: 0;
+  }
+  
+  .appear-delay-1 {
+    animation-delay: 0.1s;
+  }
+  
+  .appear-delay-2 {
+    animation-delay: 0.2s;
+  }
+  
+  .appear-delay-3 {
+    animation-delay: 0.3s;
+  }
+  
+  .appear-delay-4 {
+    animation-delay: 0.4s;
+  }
+  
+  @keyframes appear {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Page transition animations */
+  .page-enter {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  
+  .page-enter-active {
+    opacity: 1;
+    transform: scale(1);
+    transition: opacity 300ms, transform 300ms;
+  }
+  
+  .page-exit {
+    opacity: 1;
+    transform: scale(1);
+  }
+  
+  .page-exit-active {
+    opacity: 0;
+    transform: scale(0.98);
+    transition: opacity 300ms, transform 300ms;
+  }
+}
