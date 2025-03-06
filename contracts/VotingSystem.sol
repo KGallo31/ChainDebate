@@ -8,13 +8,14 @@ contract VotingSystem is ReentrancyGuard {
     
     // Struct to represent a Voter's details in a specific session
     struct Voter {
+        address userID;
         bool hasVoted;      // To check if the voter has already voted
-        uint32 vote;          // The ID of the topic the voter voted for
+        bytes32[]votedForTopics;          // The ID of the topic the voter voted for
     }
 
     // Struct to represent a Topic for voting in each session
     struct Topic {
-        uint32 id;            // ID of the topic
+        bytes32 id;            // ID of the topic
         string description; // Description of the topic
         uint32 voteCount;     // Number of votes for the topic
     }
@@ -24,8 +25,8 @@ contract VotingSystem is ReentrancyGuard {
         string title;       
         uint256 startTime;     
         uint256 endTime;       
-        mapping(address => Voter) voters;  // Mapping of voters in the session
-        mapping(uint32 => Topic) topics;     // Mapping of topics in the session
+        Voter[] votedUsers;  // Mapping of voters in the session
+        Topic[]  votingTopics;     // Mapping of topics in the session
         address creator;    // The address of the user who created the session
         uint32 totalVotes;    
     }
@@ -39,6 +40,8 @@ contract VotingSystem is ReentrancyGuard {
         uint32 totalVotes;
         bool isActive;
     }
+
+    event VotingSessionCreated(bytes32 sessionId, string title, uint256 startTime, uint256 endTime, address creator, uint32 totalVotes);
 
     // Mapping from user to the last session they created and the timestamp
     mapping(address => uint256) public lastSessionCreationTime;
@@ -132,7 +135,6 @@ contract VotingSystem is ReentrancyGuard {
         
         // Update in memory
         currentVoter.hasVoted = true;
-        currentVoter.vote = _topicId;
         currentVoter.userID = msg.sender;
         currentVoter.votedForTopics.push(bytes32(uint256(_topicId)));
         
