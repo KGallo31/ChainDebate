@@ -10,6 +10,11 @@ const Header = () => {
 
     const navigateHome = () => {
         navigate("/")
+        const topDiv = document.getElementsByClassName('top-div')[0];
+        if (topDiv) {
+            topDiv.scrollIntoView({ behavior: 'smooth' });
+        }
+
     }
 
     return (
@@ -23,7 +28,7 @@ const Header = () => {
                     transition={{ duration: 0.3 }}
                 >
                     <h1 className="text-xl font-bold tracking-tight flex items-center">
-                    <a onClick={navigateHome} className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">TopicQuest</a>
+                    <a onClick={navigateHome} className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">ChainDebate</a>
                     </h1>
                 </motion.div>
                 

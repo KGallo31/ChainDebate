@@ -24,8 +24,7 @@ const HeroSection = () => {
   return (
     <div className="relative w-full overflow-hidden">
       {/* Background gradient and noise */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 z-0" />
-      <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxwYXRoIGQ9Ik0wIDBoMzAwdjMwMEgweiIgZmlsdGVyPSJ1cmwoI2EpIiBvcGFjaXR5PSIuMDUiLz48L3N2Zz4=')] opacity-40 z-0" />
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-accent/5 z-0 top-div" />
       
       <div className="container relative z-10 flex flex-col items-center justify-center min-h-[90vh] px-6 py-24 text-center">
         {/* Hero content */}
