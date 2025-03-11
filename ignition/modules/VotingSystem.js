@@ -6,8 +6,9 @@ module.exports = buildModule("VotingSystem", (m) => {
   // Example: Create an initial voting session
   const initialTopics = ["Topic 1", "Topic 2", "Topic 3"];
   const votingDurationInMinutes = 60; // 1 hour
+  const votingTitle = "Inital Vote"
 
-  m.call(votingSystem, "createVotingSession", [votingDurationInMinutes, initialTopics]);
+  m.call(votingSystem, "createVotingSession", [votingDurationInMinutes, initialTopics, votingTitle]);
 
   return { votingSystem };
 });

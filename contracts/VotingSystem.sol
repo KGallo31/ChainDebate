@@ -9,8 +9,9 @@ contract VotingSystem is ReentrancyGuard {
     // Struct to represent a Voter's details in a specific session
     struct Voter {
         address userID;
+        string username;
         bool hasVoted;      // To check if the voter has already voted
-        bytes32[]votedForTopics;          // The ID of the topic the voter voted for
+        bytes32[] votedForSessions;          // The ID of the Sessions the voter voted for
     }
 
     // Struct to represent a Topic for voting in each session
@@ -25,8 +26,8 @@ contract VotingSystem is ReentrancyGuard {
         string title;       
         uint256 startTime;     
         uint256 endTime;       
-        Voter[] votedUsers;  // Mapping of voters in the session
-        Topic[]  votingTopics;     // Mapping of topics in the session
+        address[] votedUsersID;  // Mapping of voters in the session
+        bytes32[]  votingTopicsID;     // Mapping of topics in the session
         address creator;    // The address of the user who created the session
         uint32 totalVotes;    
     }
@@ -48,8 +49,11 @@ contract VotingSystem is ReentrancyGuard {
     // Mapping from session ID to the VotingSession struct
     mapping(bytes32 => VotingSession) public votingSessions;
     // Counter to keep track of the total number of voting sessions created
-    mapping(address => Voter) public Voters;
     uint32 public totalSessions;
+
+    mapping(address => Voter) public Voters;
+    mapping(bytes32 => bytes32) public TopicIDtoSessionID;
+    mapping(bytes32 => Topic) private Topics;
 
     address public owner;
 
@@ -68,6 +72,10 @@ contract VotingSystem is ReentrancyGuard {
         _;
     }
 
+    function ping() public pure returns (string memory) {
+        return "Pinged Contract";
+    }
+
      // Function to check if a topic is the default value
     function isTopicDefault(Topic memory topic) internal pure returns (bool) {
         return topic.id == 0 && keccak256(bytes(topic.description)) == keccak256(bytes("")) && topic.voteCount == 0;
@@ -78,19 +86,27 @@ contract VotingSystem is ReentrancyGuard {
         // Generate a unique session ID using keccak256 (combining creator address, timestamp, and topics)
         bytes32 sessionId = keccak256(abi.encodePacked(msg.sender, block.timestamp));
 
-        VotingSession storage newSession = votingSessions[sessionId];  // Create a new voting session
-        newSession.title = _title;
-        newSession.startTime = block.timestamp; 
-        newSession.endTime = block.timestamp + (_votingDurationInMinutes * 1 minutes); 
-        newSession.creator = msg.sender;  
+        votingSessions[sessionId] = VotingSession({
+            title: _title,
+            startTime: block.timestamp,
+            endTime: block.timestamp + (_votingDurationInMinutes * 1 minutes),
+            votedUsersID: new address[](0),
+            votingTopicsID: new bytes32[](_topicDescriptions.length),
+            creator: msg.sender,
+            totalVotes: 0
+        });
+
+        VotingSession storage newSession = votingSessions[sessionId];
 
         // Add topics to the voting session
         for (uint32 i = 0; i < _topicDescriptions.length; i++) {
-            newSession.votingTopics[i] = Topic({
-                id:  keccak256(abi.encodePacked(msg.sender, block.timestamp, i)),
+            bytes32 topicID = keccak256(abi.encodePacked(msg.sender, block.timestamp, i));
+            Topics[topicID] = Topic({
+                id:  topicID,
                 description: _topicDescriptions[i],
                 voteCount: 0
             });
+            newSession.votingTopicsID[i] = Topics[topicID] .id;
         }
         totalSessions++;
         lastSessionCreationTime[msg.sender] = block.timestamp;  // Update the user's last session creation time
@@ -121,9 +137,9 @@ contract VotingSystem is ReentrancyGuard {
         VotingSession storage session = votingSessions[_sessionId];
         Voter storage currentVoter = Voters[msg.sender];
 
-        for (uint32 i = 0; i < session.votedUsers.length; i++){
-            if (session.votedUsers[i].userID == msg.sender){
-                require(!session.votedUsers[i].hasVoted, "You have already voted in this session");   
+        for (uint32 i = 0; i < session.votedUsersID.length; i++){
+            if (session.votedUsersID[i] == msg.sender){
+                require(!session.votedUsersID[i].hasVoted, "You have already voted in this session");   
             }
         }
 
