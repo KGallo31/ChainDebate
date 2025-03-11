@@ -2,12 +2,15 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from "react";
 import { ethers } from "ethers";
 import { toast } from "@/hooks/use-toast";
+import contractABI from "/Users/kg/Code/ChainDebate/artifacts/contracts/VotingSystem.sol/VotingSystem.json"
+import { CONTRACT_ADDRESS } from "@/lib/contract";
 
 type Web3ContextType = {
   account: string | null;
   chainId: number | null;
-  provider: ethers.providers.Web3Provider | null;
+  provider: ethers.providers.JsonRpcProvider | null;
   signer: ethers.Signer | null;
+  contract: ethers.Contract | null;
   isConnecting: boolean;
   isConnected: boolean;
   connect: () => Promise<void>;
@@ -19,17 +22,20 @@ const Web3Context = createContext<Web3ContextType>({
   chainId: null,
   provider: null,
   signer: null,
+  contract: null,
   isConnecting: false,
   isConnected: false,
   connect: async () => {},
   disconnect: () => {},
 });
 
+
 export const Web3Provider = ({ children }: { children: ReactNode }) => {
   const [account, setAccount] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number | null>(null);
-  const [provider, setProvider] = useState<ethers.providers.Web3Provider | null>(null);
+  const [provider, setProvider] = useState<ethers.providers.JsonRpcProvider | null>(null);
   const [signer, setSigner] = useState<ethers.Signer | null>(null);
+  const [contract, setContract] = useState<ethers.Contract | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
 
@@ -50,10 +56,29 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
       const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
       
       // Create ethers provider
-      const ethersProvider = new ethers.providers.Web3Provider(window.ethereum);
+      // const ethersProvider = new ethers.providers.Web3Provider(window.ethereum);
+      const ethersProvider = new ethers.providers.JsonRpcProvider("http://127.0.0.1:8545")
       const ethersSigner = ethersProvider.getSigner();
       const network = await ethersProvider.getNetwork();
+      console.log(ethersProvider)
+      const contract = new ethers.Contract(CONTRACT_ADDRESS, contractABI.abi, ethersProvider);
+      console.log("deploying contract")
+
+      try{
+        contract.attach(CONTRACT_ADDRESS)
+        // console.log("Current contract => ", contract.attach()
+        console.log(contract.value)
+        console.log("Current contract => ", await contract.deployed())
+        
+      } catch (e){
+        console.log("Error caught when deploying:", e);
+      }      
+
+      // console.log(ethersProvider)
+      // console.log(ethersSigner)
+
       
+      setContract(contract)
       setAccount(accounts[0]);
       setChainId(network.chainId);
       setProvider(ethersProvider);
@@ -138,6 +163,7 @@ export const Web3Provider = ({ children }: { children: ReactNode }) => {
         chainId,
         provider,
         signer,
+        contract,
         isConnecting,
         isConnected,
         connect,

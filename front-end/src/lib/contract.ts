@@ -1,18 +1,8 @@
 
 import { ethers } from "ethers";
+import contractABI from "/Users/kg/Code/ChainDebate/artifacts/contracts/VotingSystem.sol/VotingSystem.json"
 
-// This would be your actual contract ABI from your compiled Solidity contract
-// For now, using a simplified mock ABI for a voting contract
-const contractABI = [
-  "function getTopics() view returns (tuple(uint256 id, string name, uint256 voteCount)[])",
-  "function vote(uint256 topicId) returns (bool)",
-  "function createTopic(string memory name) returns (uint256)",
-  "event TopicCreated(uint256 indexed id, string name, address creator)",
-  "event Voted(uint256 indexed topicId, address voter)",
-];
-
-// Replace with your actual contract address
-const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; 
+export const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; 
 
 export type Topic = {
   id: number;
@@ -20,20 +10,30 @@ export type Topic = {
   voteCount: number;
 };
 
+export const Ping = async (provider: ethers.providers.JsonRpcProvider | null) => {
+  const contract = getContract(provider);
+  try{
+    const ping = await contract.ping();
+    console.log(ping)
+  } catch (error){
+    console.log("error within contract.ts", error)
+  }
+}
+
 export const getContract = (
-  provider: ethers.providers.Web3Provider | null,
+  provider: ethers.providers.JsonRpcProvider | null,
   signer?: ethers.Signer | null
 ) => {
   if (!provider) return null;
-  
+
   return new ethers.Contract(
     CONTRACT_ADDRESS,
-    contractABI,
+    contractABI.abi,
     signer || provider
   );
 };
 
-export const getTopics = async (provider: ethers.providers.Web3Provider | null): Promise<Topic[]> => {
+export const getTopics = async (provider: ethers.providers.JsonRpcProvider | null): Promise<Topic[]> => {
   const contract = getContract(provider);
   if (!contract) return [];
   

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useWeb3 } from "@/hooks/useWeb3";
-import { getTopics, Topic } from "@/lib/contract";
+import { getTopics, Topic, Ping } from "@/lib/contract";
 import TopicCard from "./TopicCard";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
@@ -14,6 +14,7 @@ const TopicList = () => {
   const fetchTopics = async () => {
     setLoading(true);
     try {
+      await Ping(provider);
       const fetchedTopics = await getTopics(provider);
       // Sort by vote count in descending order
       const sortedTopics = [...fetchedTopics].sort((a, b) => b.voteCount - a.voteCount);
